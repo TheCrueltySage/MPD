@@ -78,7 +78,7 @@ Queue::ModifyAtOrder(unsigned _order) noexcept
 }
 
 unsigned
-Queue::Append(DetachedSong &&song, uint8_t priority) noexcept
+Queue::Append(DetachedSong &&song, uint8_t priority, uint8_t control_value) noexcept
 {
 	assert(!IsFull());
 
@@ -90,6 +90,7 @@ Queue::Append(DetachedSong &&song, uint8_t priority) noexcept
 	item.id = id;
 	item.version = version;
 	item.priority = priority;
+	item.control_value = control_value;
 
 	order[position] = position;
 
@@ -505,6 +506,37 @@ Queue::SetPriorityRange(unsigned start_position, unsigned end_position,
 			: -1;
 
 		modified |= SetPriority(i, priority, after_order);
+	}
+
+	return modified;
+}
+
+bool
+Queue::SetControlValue(unsigned position, uint8_t control_value)
+{
+	assert(position < length);
+
+	Item *item = &items[position];
+	uint8_t old_control_value = item->control_value;
+	if (old_control_value == control_value)
+		return false;
+
+	item->version = version;
+	item->control_value = control_value;
+
+	return true;
+}
+
+bool
+Queue::SetControlValueRange(unsigned start_position, unsigned end_position,
+			uint8_t control_value)
+{
+	assert(start_position <= end_position);
+	assert(end_position <= length);
+
+	bool modified = false;
+	for (unsigned i = start_position; i < end_position; ++i) {
+		modified |= SetControlValue(i, control_value);
 	}
 
 	return modified;

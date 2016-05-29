@@ -42,6 +42,23 @@ class DetachedSong;
  * - the order number (which only differs from "position" in random mode)
  */
 struct Queue {
+
+	bool SetControlValue(unsigned position, uint8_t control_value);
+
+	bool SetControlValueRange(unsigned start_position, unsigned end_position,
+			      uint8_t control_value);
+
+	gcc_pure
+	uint8_t GetControlValueAtPosition(unsigned position) const {
+		assert(position < length);
+
+		return items[position].control_value;
+	}
+
+	uint8_t GetOrderControlValue(unsigned i) const {
+		return GetOrderItem(i).control_value;
+	}
+
 	/**
 	 * reserve max_length * HASH_MULT elements in the id
 	 * number space
@@ -67,6 +84,12 @@ struct Queue {
 		 * "random" mode.
 		 */
 		uint8_t priority;
+
+        /**
+         * Hack to make song do something when it's reached.
+         *
+         */
+        uint8_t control_value;
 	};
 
 	/** configured maximum length of the queue */
@@ -263,7 +286,7 @@ struct Queue {
 	 *
 	 * @param priority the priority of this new queue item
 	 */
-	unsigned Append(DetachedSong &&song, uint8_t priority) noexcept;
+	unsigned Append(DetachedSong &&song, uint8_t priority, uint8_t control_value) noexcept;
 
 	/**
 	 * Swaps two songs, addressed by their position.
@@ -370,7 +393,6 @@ struct Queue {
 
 	bool SetPriorityRange(unsigned start_position, unsigned end_position,
 			      uint8_t priority, int after_order) noexcept;
-
 private:
 	void MoveItemTo(unsigned from, unsigned to) noexcept {
 		unsigned from_id = items[from].id;

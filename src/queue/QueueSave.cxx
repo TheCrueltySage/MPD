@@ -33,6 +33,7 @@
 #include <stdlib.h>
 
 #define PRIO_LABEL "Prio: "
+#define CTRL_LABEL "Ctrl: "
 
 static void
 queue_save_database_song(BufferedOutputStream &os,
@@ -68,6 +69,9 @@ queue_save(BufferedOutputStream &os, const Queue &queue)
 		uint8_t prio = queue.GetPriorityAtPosition(i);
 		if (prio != 0)
 			os.Format(PRIO_LABEL "%u\n", prio);
+		uint8_t ctrl = queue.GetControlValueAtPosition(i);
+		if (ctrl != 0)
+			os.Format(CTRL_LABEL "%u\n", ctrl);
 
 		queue_save_song(os, i, queue.Get(i));
 	}
@@ -101,9 +105,17 @@ queue_load_song(TextFile &file, const SongLoader &loader,
 		return;
 
 	uint8_t priority = 0;
+	uint8_t ctrl = 0;
 	const char *p;
 	if ((p = StringAfterPrefix(line, PRIO_LABEL))) {
 		priority = strtoul(p, nullptr, 10);
+
+		line = file.ReadLine();
+		if (line == nullptr)
+			return;
+	}
+	if ((p = StringAfterPrefix(line, CTRL_LABEL))) {
+		ctrl = strtoul(p, nullptr, 10);
 
 		line = file.ReadLine();
 		if (line == nullptr)
@@ -115,5 +127,5 @@ queue_load_song(TextFile &file, const SongLoader &loader,
 	if (!playlist_check_translate_song(song, {}, loader))
 		return;
 
-	queue.Append(std::move(song), priority);
+	queue.Append(std::move(song), priority, ctrl);
 }

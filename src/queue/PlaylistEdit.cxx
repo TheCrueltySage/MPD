@@ -97,7 +97,7 @@ playlist::AppendSong(PlayerControl &pc, DetachedSong &&song)
 
 	const DetachedSong *const queued_song = GetQueuedSong();
 
-	id = queue.Append(std::move(song), 0);
+	id = queue.Append(std::move(song), 0, 0);
 
 	if (queue.random) {
 		/* shuffle the new song into the list of remaining
@@ -164,6 +164,49 @@ playlist::SwapIds(PlayerControl &pc, unsigned id1, unsigned id2)
 		throw PlaylistError::NoSuchSong();
 
 	SwapPositions(pc, song1, song2);
+}
+
+void
+playlist::SetControlValueRange(PlayerControl &pc,
+			   unsigned start, unsigned end,
+			   uint8_t control_value)
+{
+	if (start >= GetLength())
+		throw PlaylistError::BadRange();
+
+	if (end > GetLength())
+		end = GetLength();
+
+	if (start >= end)
+		return;
+
+	/* remember "current" and "queued" */
+
+	const int current_position = GetCurrentPosition();
+	const DetachedSong *const queued_song = GetQueuedSong();
+
+	/* apply the control_value changes */
+
+	queue.SetControlValueRange(start, end, control_value);
+
+	/* restore "current" and choose a new "queued" */
+
+	if (current_position >= 0)
+		current = queue.PositionToOrder(current_position);
+
+	UpdateQueuedSong(pc, queued_song);
+	OnModified();
+}
+
+void
+playlist::SetControlValueId(PlayerControl &pc,
+			unsigned song_id, uint8_t control_value)
+{
+	int song_position = queue.IdToPosition(song_id);
+	if (song_position < 0)
+		throw PlaylistError::NoSuchSong();
+
+	SetControlValueRange(pc, song_position, song_position + 1, control_value);
 }
 
 void

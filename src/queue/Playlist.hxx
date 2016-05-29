@@ -35,6 +35,7 @@ class SignedSongTime;
 class QueueListener;
 
 struct playlist {
+
 	/**
 	 * The song queue - it contains the "real" playlist.
 	 */
@@ -135,6 +136,9 @@ struct playlist {
 	 * the player thread whenever playback goes into border pause.
 	 */
 	void BorderPause(PlayerControl &pc) noexcept;
+
+	void AutoChangeMode(PlayerControl &pc, uint8_t mode_bitmask);
+
 
 protected:
 	/**
@@ -260,6 +264,13 @@ public:
 	void SwapPositions(PlayerControl &pc, unsigned song1, unsigned song2);
 
 	void SwapIds(PlayerControl &pc, unsigned id1, unsigned id2);
+
+	void SetControlValueRange(PlayerControl &pc,
+			      unsigned start_position, unsigned end_position,
+			      uint8_t control_value);
+
+	void SetControlValueId(PlayerControl &pc,
+			   unsigned song_id, uint8_t control_value);
 
 	void SetPriorityRange(PlayerControl &pc,
 			      unsigned start_position, unsigned end_position,

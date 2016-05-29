@@ -33,6 +33,12 @@ CommandResult
 handle_addid(Client &client, Request request, Response &response);
 
 CommandResult
+handle_ctrl(Client &client, Request request, Response &response);
+
+CommandResult
+handle_ctrlid(Client &client, Request request, Response &response);
+
+CommandResult
 handle_rangeid(Client &client, Request request, Response &response);
 
 CommandResult

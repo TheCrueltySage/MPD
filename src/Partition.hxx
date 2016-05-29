@@ -161,6 +161,16 @@ struct Partition final : QueueListener, PlayerListener, MixerListener {
 		playlist.SwapIds(pc, id1, id2);
 	}
 
+	void SetControlValueRange(unsigned start_position, unsigned end_position,
+			      uint8_t control_value) {
+		playlist.SetControlValueRange(pc, start_position, end_position,
+					  control_value);
+	}
+
+	void SetControlValueId(unsigned song_id, uint8_t control_value) {
+		playlist.SetControlValueId(pc, song_id, control_value);
+	}
+
 	void SetPriorityRange(unsigned start_position, unsigned end_position,
 			      uint8_t priority) {
 		playlist.SetPriorityRange(pc, start_position, end_position,

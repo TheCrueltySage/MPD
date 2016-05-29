@@ -85,6 +85,8 @@ playlist::SongStarted() noexcept
 	/* reset a song's "priority" when playback starts */
 	if (queue.SetPriority(queue.OrderToPosition(current), 0, -1, false))
 		OnModified();
+	if (queue.SetControlValue(queue.OrderToPosition(current), 0))
+		OnModified();
 }
 
 inline void
@@ -105,6 +107,8 @@ playlist::QueuedSongStarted(PlayerControl &pc) noexcept
 		DeleteOrder(pc, old_current);
 
 	listener.OnQueueSongStarted();
+
+	AutoChangeMode(pc, queue.GetOrderControlValue(current));
 
 	SongStarted();
 }
@@ -183,6 +187,8 @@ playlist::PlayOrder(PlayerControl &pc, unsigned order)
 	current = order;
 
 	pc.Play(std::make_unique<DetachedSong>(song));
+
+	AutoChangeMode(pc, queue.GetOrderControlValue(current));
 
 	SongStarted();
 }
@@ -367,4 +373,25 @@ playlist::BorderPause(PlayerControl &pc) noexcept
 
 		listener.OnQueueOptionsChanged();
 	}
+}
+
+void
+playlist::AutoChangeMode(PlayerControl &pc, uint8_t mode_bitmask)
+{
+    if (mode_bitmask == 0)
+        return;
+
+    if (mode_bitmask >= 16)
+    {
+        if (GetRepeat()) SetRepeat(pc, 0);
+        if (GetRandom()) SetRandom(pc, 0);
+        if (GetSingle()) SetSingle(pc, 0);
+        if (GetConsume()) SetConsume(0);
+        return;
+    }
+
+    if (mode_bitmask & 8) SetRepeat(pc, !(GetRepeat()));
+    if (mode_bitmask & 4) SetRandom(pc, !(GetRandom()));
+    if (mode_bitmask & 2) SetSingle(pc, !(GetSingle()));
+    if (mode_bitmask & 1) SetConsume(   !(GetConsume()));
 }

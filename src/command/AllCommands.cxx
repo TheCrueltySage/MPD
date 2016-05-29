@@ -99,6 +99,8 @@ static constexpr struct command commands[] = {
 	{ "count", PERMISSION_READ, 1, -1, handle_count },
 #endif
 	{ "crossfade", PERMISSION_CONTROL, 1, 1, handle_crossfade },
+	{ "ctrl", PERMISSION_CONTROL, 2, -1, handle_ctrl },
+	{ "ctrlid", PERMISSION_CONTROL, 2, -1, handle_ctrlid },
 	{ "currentsong", PERMISSION_READ, 0, 0, handle_currentsong },
 	{ "decoders", PERMISSION_READ, 0, 0, handle_decoders },
 	{ "delete", PERMISSION_CONTROL, 1, 1, handle_delete },

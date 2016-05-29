@@ -42,8 +42,9 @@ queue_print_song_info(Response &r, const Queue &queue,
 		 position, queue.PositionToId(position));
 
 	uint8_t priority = queue.GetPriorityAtPosition(position);
-	if (priority != 0)
-		r.Format("Prio: %u\n", priority);
+	r.Format("Prio: %u\n", priority);
+	uint8_t control_value = queue.GetControlValueAtPosition(position);
+	r.Format("Ctrl: %u\n", control_value);
 }
 
 void

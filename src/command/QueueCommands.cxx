@@ -217,6 +217,35 @@ handle_clear(Client &client, [[maybe_unused]] Request args, [[maybe_unused]] Res
 }
 
 CommandResult
+handle_ctrl(Client &client, Request args, gcc_unused Response &r)
+{
+	unsigned control_value = args.ParseUnsigned(0, 0xff);
+	args.shift();
+
+	for (const char *i : args) {
+		RangeArg range = ParseCommandArgRange(i);
+		client.partition.SetControlValueRange(range.start, range.end,
+						  control_value);
+	}
+
+	return CommandResult::OK;
+}
+
+CommandResult
+handle_ctrlid(Client &client, Request args, gcc_unused Response &r)
+{
+	unsigned control_value = args.ParseUnsigned(0, 0xff);
+	args.shift();
+
+	for (const char *i : args) {
+		unsigned song_id = ParseCommandArgUnsigned(i);
+		client.partition.SetControlValueId(song_id, control_value);
+	}
+
+	return CommandResult::OK;
+}
+
+CommandResult
 handle_plchanges(Client &client, Request args, Response &r)
 {
 	uint32_t version = ParseCommandArgU32(args.front());
