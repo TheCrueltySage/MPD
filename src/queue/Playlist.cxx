@@ -378,6 +378,8 @@ playlist::BorderPause(PlayerControl &pc) noexcept
 void
 playlist::AutoChangeMode(PlayerControl &pc, uint8_t mode_bitmask)
 {
+    if (queue.consume) SetConsume(0);
+
     if (mode_bitmask == 0)
         return;
 
@@ -393,5 +395,5 @@ playlist::AutoChangeMode(PlayerControl &pc, uint8_t mode_bitmask)
     if (mode_bitmask & 8) SetRepeat(pc, !(GetRepeat()));
     if (mode_bitmask & 4) SetRandom(pc, !(GetRandom()));
     if (mode_bitmask & 2) SetSingle(pc, !(GetSingle()));
-    if (mode_bitmask & 1) SetConsume(   !(GetConsume()));
+    if (mode_bitmask & 1) SetConsume(1);
 }
