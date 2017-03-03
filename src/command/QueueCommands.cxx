@@ -222,9 +222,11 @@ handle_ctrl(Client &client, Request args, gcc_unused Response &r)
 	unsigned control_value = args.ParseUnsigned(0, 0xff);
 	args.shift();
 
+	auto &partition = client.GetPartition();
+
 	for (const char *i : args) {
 		RangeArg range = ParseCommandArgRange(i);
-		client.partition.SetControlValueRange(range.start, range.end,
+		partition.SetControlValueRange(range.start, range.end,
 						  control_value);
 	}
 
@@ -237,9 +239,11 @@ handle_ctrlid(Client &client, Request args, gcc_unused Response &r)
 	unsigned control_value = args.ParseUnsigned(0, 0xff);
 	args.shift();
 
+	auto &partition = client.GetPartition();
+
 	for (const char *i : args) {
 		unsigned song_id = ParseCommandArgUnsigned(i);
-		client.partition.SetControlValueId(song_id, control_value);
+		partition.SetControlValueId(song_id, control_value);
 	}
 
 	return CommandResult::OK;
