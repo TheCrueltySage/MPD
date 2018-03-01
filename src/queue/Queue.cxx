@@ -512,7 +512,7 @@ Queue::SetPriorityRange(unsigned start_position, unsigned end_position,
 }
 
 bool
-Queue::SetControlValue(unsigned position, uint8_t control_value)
+Queue::SetControlValue(unsigned position, uint8_t control_value) noexcept
 {
 	assert(position < length);
 
@@ -529,7 +529,7 @@ Queue::SetControlValue(unsigned position, uint8_t control_value)
 
 bool
 Queue::SetControlValueRange(unsigned start_position, unsigned end_position,
-			uint8_t control_value)
+			uint8_t control_value) noexcept
 {
 	assert(start_position <= end_position);
 	assert(end_position <= length);
