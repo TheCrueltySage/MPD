@@ -121,7 +121,7 @@ struct Queue {
 	bool consume = false;
 
 	/** play back songs in random order? */
-	bool random = false;
+	int random = false;
 
 	/** random number generator for shuffle and random mode */
 	LazyRandomEngine rand;

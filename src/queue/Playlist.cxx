@@ -82,9 +82,6 @@ playlist::SongStarted() noexcept
 {
 	assert(current >= 0);
 
-	AutoChangeMode(pc, queue.GetOrderControlValue(current));
-	listener.OnQueueOptionsChanged();
-
 	/* reset a song's "priority" when playback starts */
 	if (queue.SetPriority(queue.OrderToPosition(current), 0, -1, false))
 		OnModified();
@@ -109,6 +106,7 @@ playlist::QueuedSongStarted(PlayerControl &pc) noexcept
 	if (queue.consume)
 		DeleteOrder(pc, old_current);
 
+	AutoChangeMode(pc, queue.GetOrderControlValue(current));
 	listener.OnQueueOptionsChanged();
 
 	listener.OnQueueSongStarted();
@@ -191,6 +189,7 @@ playlist::PlayOrder(PlayerControl &pc, unsigned order)
 
 	pc.Play(std::make_unique<DetachedSong>(song));
 
+	AutoChangeMode(pc, queue.GetOrderControlValue(current));
 	listener.OnQueueOptionsChanged();
 
 	SongStarted();
@@ -260,6 +259,9 @@ playlist::SetRepeat(PlayerControl &pc, bool status) noexcept
 
 	queue.repeat = status;
 
+    if (SingleToString(GetSingle()) == "0")
+        SetSingle(pc, SingleFromString("oneshot"));
+
 	pc.LockSetBorderPause(queue.single != SingleMode::OFF && !queue.repeat);
 
 	/* if the last song is currently being played, the "next song"
@@ -308,7 +310,7 @@ playlist::SetConsume(bool status) noexcept
 }
 
 void
-playlist::SetRandom(PlayerControl &pc, bool status) noexcept
+playlist::SetRandom(PlayerControl &pc, int status) noexcept
 {
 	if (status == queue.random)
 		return;
@@ -383,34 +385,44 @@ playlist::AutoChangeMode(PlayerControl &pc, uint8_t mode_bitmask) noexcept
 {
     if (queue.consume)
         SetConsume(0);
+    if (queue.repeat)
+    {
+        SetRepeat(pc, 0);
+        SetSingle(pc, SingleFromString("0"));
+    }
+    if (queue.random > 1)
+        SetRandom(pc, 0);
 
     if (mode_bitmask == 0)
         return;
 
     if (mode_bitmask >= 16)
     {
-        if (GetRepeat()) SetRepeat(pc, 0);
-        if (GetRandom()) SetRandom(pc, 0);
-        if (SingleToString(GetSingle())!="0")
-	    SetSingle(pc, SingleFromString("0"));
-        if (GetConsume()) SetConsume(0);
+        // Some resets already done
+        // if (queue.repeat) SetRepeat(pc, 0);
+        if (queue.random) SetRandom(pc, 0);
+        if (SingleToString(GetSingle()) != "0")
+            SetSingle(pc, SingleFromString("0"));
+        // if (queue.consume) SetConsume(0);
         return;
     }
 
-    if (mode_bitmask & 8) SetRepeat(pc, !(GetRepeat()));
-    if (mode_bitmask & 4) SetRandom(pc, !(GetRandom()));
+    if (mode_bitmask & 8) SetRepeat(pc, 1);
+    if (mode_bitmask & 4)
+    {
+        if (mode_bitmask & 128)
+            SetRandom(pc, !(GetRandom()));
+        else
+            GetRandom() ? SetRandom(pc, 0) : SetRandom(pc, 2);
+    }
     if (mode_bitmask & 2)
     {
         if (mode_bitmask & 128)
             SetSingle(pc, SingleFromString("1"));
         else
-        {
-            std::string cur = SingleToString(GetSingle());
-            if (cur == "0")
-                SetSingle(pc, SingleFromString("oneshot"));
-            else
-                SetSingle(pc, SingleFromString("0"));
-        }
+            SingleToString(GetSingle()) == "0" ?
+                SetSingle(pc, SingleFromString("oneshot")) 
+                : SetSingle(pc, SingleFromString("0"));
     }
     if (mode_bitmask & 1) SetConsume(1);
 }

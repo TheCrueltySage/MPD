@@ -369,7 +369,7 @@ public:
 		return queue.random;
 	}
 
-	void SetRandom(PlayerControl &pc, bool new_value) noexcept;
+	void SetRandom(PlayerControl &pc, int new_value) noexcept;
 
 	SingleMode GetSingle() const noexcept {
 		return queue.single;

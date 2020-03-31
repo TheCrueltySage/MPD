@@ -221,7 +221,7 @@ struct Partition final : QueueListener, PlayerListener, MixerListener {
 		return playlist.GetRandom();
 	}
 
-	void SetRandom(bool new_value) noexcept {
+	void SetRandom(int new_value) noexcept {
 		playlist.SetRandom(pc, new_value);
 	}
 
