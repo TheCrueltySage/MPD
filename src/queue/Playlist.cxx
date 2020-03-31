@@ -82,6 +82,9 @@ playlist::SongStarted() noexcept
 {
 	assert(current >= 0);
 
+	AutoChangeMode(pc, queue.GetOrderControlValue(current));
+	listener.OnQueueOptionsChanged();
+
 	/* reset a song's "priority" when playback starts */
 	if (queue.SetPriority(queue.OrderToPosition(current), 0, -1, false))
 		OnModified();
@@ -106,12 +109,9 @@ playlist::QueuedSongStarted(PlayerControl &pc) noexcept
 	if (queue.consume)
 		DeleteOrder(pc, old_current);
 
-	AutoChangeMode(pc, queue.GetOrderControlValue(current));
 	listener.OnQueueOptionsChanged();
 
 	listener.OnQueueSongStarted();
-
-	AutoChangeMode(pc, queue.GetOrderControlValue(current));
 
 	SongStarted();
 }
@@ -191,7 +191,6 @@ playlist::PlayOrder(PlayerControl &pc, unsigned order)
 
 	pc.Play(std::make_unique<DetachedSong>(song));
 
-	AutoChangeMode(pc, queue.GetOrderControlValue(current));
 	listener.OnQueueOptionsChanged();
 
 	SongStarted();
@@ -380,10 +379,10 @@ playlist::BorderPause(PlayerControl &pc) noexcept
 }
 
 void
-playlist::AutoChangeMode(PlayerControl &pc, uint8_t mode_bitmask)
+playlist::AutoChangeMode(PlayerControl &pc, uint8_t mode_bitmask) noexcept
 {
     if (queue.consume)
-	SetConsume(0);
+        SetConsume(0);
 
     if (mode_bitmask == 0)
         return;
@@ -402,16 +401,16 @@ playlist::AutoChangeMode(PlayerControl &pc, uint8_t mode_bitmask)
     if (mode_bitmask & 4) SetRandom(pc, !(GetRandom()));
     if (mode_bitmask & 2)
     {
-	if (mode_bitmask & 128)
-	    SetSingle(pc, SingleFromString("1"));
-	else
-	{
-	    std::string cur = SingleToString(GetSingle());
-	    if (cur == "0")
-		SetSingle(pc, SingleFromString("oneshot"));
-	    else
-		SetSingle(pc, SingleFromString("0"));
-	}
+        if (mode_bitmask & 128)
+            SetSingle(pc, SingleFromString("1"));
+        else
+        {
+            std::string cur = SingleToString(GetSingle());
+            if (cur == "0")
+                SetSingle(pc, SingleFromString("oneshot"));
+            else
+                SetSingle(pc, SingleFromString("0"));
+        }
     }
     if (mode_bitmask & 1) SetConsume(1);
 }

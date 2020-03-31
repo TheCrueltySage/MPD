@@ -137,7 +137,7 @@ struct playlist {
 	 */
 	void BorderPause(PlayerControl &pc) noexcept;
 
-	void AutoChangeMode(PlayerControl &pc, uint8_t mode_bitmask);
+	void AutoChangeMode(PlayerControl &pc, uint8_t mode_bitmask) noexcept;
 
 
 protected:

@@ -217,7 +217,7 @@ handle_clear(Client &client, [[maybe_unused]] Request args, [[maybe_unused]] Res
 }
 
 CommandResult
-handle_ctrl(Client &client, Request args, gcc_unused Response &r)
+handle_ctrl(Client &client, Request args, [[maybe_unused]] Response &r)
 {
 	unsigned control_value = args.ParseUnsigned(0, 0xff);
 	args.shift();
@@ -234,7 +234,7 @@ handle_ctrl(Client &client, Request args, gcc_unused Response &r)
 }
 
 CommandResult
-handle_ctrlid(Client &client, Request args, gcc_unused Response &r)
+handle_ctrlid(Client &client, Request args, [[maybe_unused]] Response &r)
 {
 	unsigned control_value = args.ParseUnsigned(0, 0xff);
 	args.shift();
